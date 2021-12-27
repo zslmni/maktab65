@@ -16,42 +16,31 @@ class FileHandler:
 
     def write_file(self, info, mode="a"):
         if isinstance(info, dict):
-            if self.check_unique_id(info["id"]):
-                return "id already exists"
             fields = info.keys()
             info = [info]
         elif isinstance(info, list):
             fields = info[0].keys()
-        with open(self.file_path, mode) as myfile:
+        with open(self.file_path, mode=mode, newline='') as myfile:
             writer = csv.DictWriter(myfile, fieldnames=fields)
             if myfile.tell() == 0:
                 writer.writeheader()
             writer.writerows(info)
 
-    def edit_row(self, new_info):
+    def edit_row(self, key, new_info, row_num):
         all_rows = self.read_file()
         final_rows = []
-        for row in all_rows:
-            if row["id"] == str(new_info["id"]):
-                row = new_info
-            final_rows.append(row)
+        for i in range(len(all_rows)):
+            if i == row_num:
+                all_rows[i][key] = new_info
+            final_rows.append(all_rows[i])
         self.write_file(final_rows, mode="w")
 
-    def check_unique_id(self, id):
-        all_rows = self.read_file()
-        for row in all_rows:
-            if row["id"] == str(id):
-                return True
-        return False
-
-    def delete_row(self, id):
+    def delete_row(self, row_num):
         all_rows = self.read_file()
         final_rows = []
-        for row in all_rows:
-            if row["id"] == str(id):
+        for i in range(len(all_rows)):
+            if i == row_num:
                 continue
-            final_rows.append(row)
+            final_rows.append(all_rows[i])
         self.write_file(final_rows, mode="w")
-
-
 
